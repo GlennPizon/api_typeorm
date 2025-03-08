@@ -27,11 +27,11 @@ async function create(params) {
 
     // hash password
     if (params.password) {
-        user.hash = await bcrypt.hash(params.password, 10);
-    }
+        user.passwordHash = await bcrypt.hash(params.password, 10); // Corrected property name
 
-    // save user
-    await user.save();
+        // save user
+        await user.save();
+    }
 }
 
 async function update(id, params) {
@@ -45,7 +45,7 @@ async function update(id, params) {
 
     // hash password if it was entered
     if (params.password) {
-        params.hash = await bcrypt.hash(params.password, 10);
+        params.passwordHash = await bcrypt.hash(params.password, 10); // Corrected property name
     }
 
     // copy params to user and save

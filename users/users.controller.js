@@ -2,16 +2,15 @@ const express = require('express');
 const router = express.Router();
 const Joi = require('joi');
 const validateRequest = require('_middleware/validate-request');
-const authorize = require('_middleware/authorize')
 const userService = require('./user.service');
 const Role = require('_helpers/role');
 
 // routes
-router.get('/', authorize(Role.Admin), getAll);
-router.get('/:id', authorize(), getById);
-router.post('/', authorize(Role.Admin), createSchema, create);
-router.put('/:id', authorize(), updateSchema, update);
-router.delete('/:id', authorize(), _delete);
+router.get('/', getAll);
+router.get('/:id', getById);
+router.post('/', createSchema, create);
+router.put('/:id', updateSchema, update);
+router.delete('/:id', _delete);
 
 module.exports = router;
 
@@ -64,22 +63,29 @@ function _delete(req, res, next) {
 // schema functions
 function createSchema(req, res, next) {
     const schema = Joi.object({
+        title: Joi.string().empty(''),
         firstName: Joi.string().required(),
         lastName: Joi.string().required(),
-        username: Joi.string().required(),
+        email : Joi.string.email().required(),
+        role: Joi.string().valid(Role.Admin, Role.User).required(),
         password: Joi.string().min(6).required(),
-        role: Joi.string().valid(Role.Admin, Role.User).required()
+        confirmPassword : Joi.string().valid(Joi.ref('password').required())
     });
     validateRequest(req, next, schema);
 }
 
 function updateSchema(req, res, next) {
     const schema = Joi.object({
-        firstName: Joi.string().empty(''),
-        lastName: Joi.string().empty(''),
-        username: Joi.string().empty(''),
-        password: Joi.string().min(6).empty(''),
-        role: Joi.string().valid(Role.Admin, Role.User).empty('')
-    });
+        title: Joi.string().empty(''),
+        firstName: Joi.string().required(),
+        lastName: Joi.string().required(),
+        email : Joi.string.email().required(),
+        role: Joi.string().valid(Role.Admin, Role.User).required(),
+        password: Joi.string().min(6).required(),
+        confirmPassword : Joi.string().valid(Joi.ref('password').required())
+    
+
+
+    }).with ('password','confirmPassword');
     validateRequest(req, next, schema);
 }
